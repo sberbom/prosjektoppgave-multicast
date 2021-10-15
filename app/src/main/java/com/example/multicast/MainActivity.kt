@@ -1,5 +1,6 @@
 package com.example.multicast
 
+import android.content.Context
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -9,13 +10,12 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import com.example.multicast.databinding.ActivityMainBinding
 import java.lang.Exception
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.net.MulticastSocket
-import java.security.spec.ECField
 import java.util.concurrent.ThreadLocalRandom
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +24,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var multicastGroup: String = "224.0.0.10"
     private var multicastPort: Int = 8888
+    private var client: Client = Client(multicastGroup,multicastPort)
+    private var serverThread = Server(multicastGroup, multicastPort)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,47 +43,26 @@ class MainActivity : AppCompatActivity() {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
+
+
+
+        var clientThread = Client(multicastGroup,multicastPort)
+        Thread(clientThread).start()
+
+        Thread(serverThread).start()
+
+    }
+
+    fun getAvailableDevices(): String {
+        var str = ""
+        for (device in serverThread.availableDevices) {
+            str = str.plus(device).plus(", ")
+        }
+        return str
     }
 
     fun sendData(): Void? {
-        var addr = InetAddress.getByName(multicastGroup)
-        try {
-            var serverSocket = DatagramSocket()
-            for(i in 1..5) {
-                var random = ThreadLocalRandom.current().nextInt(0,100).toString()
-                var msg = "Sent message no $random";
-                var msgPacket = DatagramPacket(msg.toByteArray(), msg.toByteArray().size, addr, multicastPort)
-                serverSocket.send(msgPacket);
-
-                println("Servers sendt packet with msg: $i");
-                Thread.sleep(500)
-            }
-        }catch (e:Exception) {
-            e.printStackTrace()
-        }
-        return null;
-    }
-
-    fun receiveData(): String? {
-        var addr = InetAddress.getByName(multicastGroup);
-        var buf = ByteArray(256)
-        try{
-            var clientSocket = MulticastSocket(multicastPort);
-            clientSocket.joinGroup(addr)
-
-            println("SUBSCRIBING")
-            while (true) {
-                var msgPacket = DatagramPacket(buf, buf.size)
-                clientSocket.receive(msgPacket);
-
-                var msg = String(buf, 0, buf.size);
-                println("Socket received msg $msg");
-                return msg;
-            }
-        }catch (e:Exception){
-            e.printStackTrace();
-        }
-
+        client.sendData()
         return null;
     }
 

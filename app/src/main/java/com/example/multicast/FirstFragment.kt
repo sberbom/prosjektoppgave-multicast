@@ -9,6 +9,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.multicast.databinding.FragmentFirstBinding
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
+import android.widget.TextView
 
 
 /**
@@ -47,8 +48,8 @@ class FirstFragment : Fragment() {
         }
 
         binding.buttonSubscribe.setOnClickListener {
-            var msg = (activity as MainActivity).receiveData()
-            binding.textMsg.text = msg;
+            var devicesString = (activity as MainActivity).getAvailableDevices()
+            binding.textMsg.text = devicesString
         }
     }
 
