@@ -1,6 +1,5 @@
 package com.example.multicast
 
-import android.content.Context
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -10,13 +9,9 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import com.example.multicast.databinding.ActivityMainBinding
-import java.lang.Exception
-import java.net.DatagramPacket
-import java.net.DatagramSocket
+import com.example.multicast.databinding.FragmentFirstBinding
 import java.net.InetAddress
-import java.util.concurrent.ThreadLocalRandom
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     private var multicastPort: Int = 8888
     private var client: Client = Client(multicastGroup,multicastPort)
     private var serverThread = Server(multicastGroup, multicastPort)
+    private var tcpServer: TCPServer? = null;
+    private var tcpClient: TCPClient? = null;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,18 +48,42 @@ class MainActivity : AppCompatActivity() {
 
         Thread(serverThread).start()
 
+
+
     }
 
-    fun getAvailableDevices(): String {
+    fun startTCPClient(binding: FragmentFirstBinding): Void? {
+        tcpClient = TCPClient(binding)
+        return null;
+    }
+
+    fun startTCPServer(binding: FragmentFirstBinding): Void? {
+        tcpServer = TCPServer(binding)
+        return null;
+    }
+
+    fun stopTCPServer(): Void? {
+        tcpServer?.closeSocket();
+        return null;
+    }
+
+    fun getAvailableDevicesString(): String {
         var str = ""
+        var myIp = client.getIpAddress()
         for (device in serverThread.availableDevices) {
-            str = str.plus(device).plus(", ")
+            var hostName = if (device == myIp)  "My device" else InetAddress.getByName(device).hostName;
+            var strToAdd = "$hostName: $device, \n\n"
+            str = str.plus(strToAdd)
         }
         return str
     }
 
+    fun getAvailableDevices(): MutableList<String> {
+        return serverThread.availableDevices
+    }
+
     fun sendData(): Void? {
-        client.sendData()
+        client.sendMulticastData()
         return null;
     }
 

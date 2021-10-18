@@ -20,7 +20,6 @@ class Server(multicastGroup: String, multicastPort: Int): Runnable {
             var clientSocket = MulticastSocket(multicastPort);
             clientSocket.joinGroup(addr)
 
-            println("Listening at $multicastGroup:$multicastPort")
             while (true) {
                 var msgPacket = DatagramPacket(buf, buf.size)
                 clientSocket.receive(msgPacket);
@@ -30,7 +29,6 @@ class Server(multicastGroup: String, multicastPort: Int): Runnable {
                 val regex = Regex("[^A-Za-z0-9.]")
                 var msg = regex.replace(msgRaw, "");
 
-                println("Socket received msg $msg");
                 if(!availableDevices.contains(msg)){
                     availableDevices.add(msg)
                 }

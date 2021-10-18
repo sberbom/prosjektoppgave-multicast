@@ -9,7 +9,7 @@ class Client(multicastGroup: String, multicastPort: Int): Runnable {
     var multicastPort: Int = multicastPort;
     var multicastGroup: String = multicastGroup;
 
-    fun sendData(): Void? {
+    fun sendMulticastData(): Void? {
         var addr = InetAddress.getByName(multicastGroup)
         try {
             var serverSocket = DatagramSocket()
@@ -25,8 +25,7 @@ class Client(multicastGroup: String, multicastPort: Int): Runnable {
     override fun run() {
         try{
             while (true){
-                println("Sending data")
-                sendData()
+                sendMulticastData()
                 Thread.sleep(2000)
             }
         }catch (e:Exception){
@@ -35,7 +34,7 @@ class Client(multicastGroup: String, multicastPort: Int): Runnable {
     }
 
 
-    private fun getIpAddress(): String? {
+     fun getIpAddress(): String? {
         try {
             val en: Enumeration<NetworkInterface> = NetworkInterface.getNetworkInterfaces()
             while (en.hasMoreElements()) {

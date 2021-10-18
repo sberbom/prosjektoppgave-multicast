@@ -47,14 +47,38 @@ class FirstFragment : Fragment() {
             (activity as MainActivity).sendData()
         }
 
+
+
         binding.buttonSubscribe.setOnClickListener {
-            var devicesString = (activity as MainActivity).getAvailableDevices()
+            var devicesString = (activity as MainActivity).getAvailableDevicesString()
             binding.textMsg.text = devicesString
+
+            var availableDevices = (activity as MainActivity).getAvailableDevices()
+            var counter = 1
+            for(device in availableDevices) {
+                if(counter == 1 ) {
+                    binding.buttonConnect1.text = device;
+                }
+                else if(counter == 2 ) {
+                    binding.buttonConnect2.text = device;
+                }
+                else if(counter == 3 ) {
+                    binding.buttonConnect3.text = device;
+                }
+                counter++;
+            }
         }
+
+        (activity as MainActivity).startTCPServer(binding);
+
+        (activity as MainActivity).startTCPClient(binding);
+
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        (activity as MainActivity).stopTCPServer();
         _binding = null
     }
 }
